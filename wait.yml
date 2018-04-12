@@ -2,7 +2,8 @@ schema: "1"
 id: wait
 metadata:
   name: Wait
-  description: Performs a wait stage.
+  description: Performs a wait stage
+  owner: anonymous
   scopes: [global]
 variables: []
 stages:
