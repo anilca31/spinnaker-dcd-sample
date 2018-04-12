@@ -1,0 +1,12 @@
+schema: "1"
+id: wait
+metadata:
+  name: Wait
+  description: Performs a wait stage.
+  scopes: [global]
+variables: []
+stages:
+- id: wait
+  type: wait
+  config:
+waitTime: 5
