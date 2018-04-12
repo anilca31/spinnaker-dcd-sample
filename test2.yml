@@ -1,0 +1,157 @@
+schema: '1'
+id: generatedTemplate
+metadata:
+  name: restapploaddup
+  description: GIVE ME A DESCRIPTION
+  owner: anonymous
+  scopes: []
+protect: false
+configuration:
+  concurrentExecutions:
+    parallel: []
+    limitConcurrent: true
+  triggers: []
+  parameters: []
+  notifications: []
+variables:
+- name: preloaddnsip
+  description: Loadbalancer IP for putting load on stage cluster.
+  defaultValue: 34.217.50.143
+- name: preloadtime
+  description: Load time for putting load on stage cluster.
+  defaultValue: 900
+- name: preloadport
+  description: Loadbalancer port for putting load on stage cluster.
+  defaultValue: 31172
+stages:
+- id: jenkins1
+  type: jenkins
+  dependsOn:
+  - deploy4
+  name: PreLoad
+  config:
+    continuePipeline: false
+    failPipeline: true
+    job: AcaRestAppLoad
+    master: opsmx-jenkins-master
+    parameters:
+      dnsip: "{{ preloaddnsip }}"
+      loadtime: "{{ preloadtime }}"
+      port: "{{ preloadport }}"
+- id: deploy2
+  type: deploy
+  dependsOn:
+  - jenkins1
+  name: Deploy
+  config:
+    clusters:
+    - account: my-k8s-account
+      application: devk8cluster
+      cloudProvider: kubernetes
+      containers:
+      - args: []
+        command: []
+        envFrom: []
+        envVars: []
+        imageDescription:
+          imageId: quay.io/veerendra2/restapp:latest2
+          registry: quay.io
+          repository: veerendra2/restapp
+          tag: latest2
+        imagePullPolicy: ALWAYS
+        name: veerendra2-restapp
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        - containerPort: 9090
+          name: monitoring
+          protocol: TCP
+        volumeMounts: []
+      dnsPolicy: ClusterFirst
+      events: []
+      freeFormDetails: dev
+      initContainers: []
+      interestingHealthProviderNames:
+      - KubernetesContainer
+      - KubernetesPod
+      loadBalancers:
+      - devk8cluster-restapp-elb
+      maxRemainingAsgs: 2
+      namespace: default
+      nodeSelector: {}
+      podAnnotations: {}
+      provider: kubernetes
+      region: default
+      replicaSetAnnotations: {}
+      securityGroups: []
+      stack: restapp
+      strategy: redblack
+      targetSize: 1
+      terminationGracePeriodSeconds: 30
+      volumeSources: []
+- id: jenkins3
+  type: jenkins
+  dependsOn:
+  - deploy2
+  name: PostLoad
+  config:
+    continuePipeline: false
+    failPipeline: true
+    job: AcaRestAppLoad
+    master: opsmx-jenkins-master
+    parameters:
+      dnsip: 34.217.50.143
+      loadtime: '900'
+      port: '31172'
+- id: deploy4
+  type: deploy
+  dependsOn: []
+  name: Deploy First
+  config:
+    clusters:
+    - account: my-k8s-account
+      application: devk8cluster
+      cloudProvider: kubernetes
+      containers:
+      - args: []
+        command: []
+        envFrom: []
+        envVars: []
+        imageDescription:
+          imageId: quay.io/veerendra2/restapp:latest2
+          registry: quay.io
+          repository: veerendra2/restapp
+          tag: latest2
+        imagePullPolicy: ALWAYS
+        name: veerendra2-restapp
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        - containerPort: 9090
+          name: monitoring
+          protocol: TCP
+        volumeMounts: []
+      dnsPolicy: ClusterFirst
+      events: []
+      freeFormDetails: dev
+      initContainers: []
+      interestingHealthProviderNames:
+      - KubernetesContainer
+      - KubernetesPod
+      loadBalancers:
+      - devk8cluster-restapp-elb
+      maxRemainingAsgs: 2
+      namespace: default
+      nodeSelector: {}
+      podAnnotations: {}
+      provider: kubernetes
+      region: default
+      replicaSetAnnotations: {}
+      securityGroups: []
+      stack: restapp
+      strategy: redblack
+      targetSize: 1
+      terminationGracePeriodSeconds: 30
+      volumeSources: []
