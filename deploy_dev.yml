@@ -1,0 +1,94 @@
+variables:
+- name: dockerregistryaccount
+  description: Required for docker based trigger
+  defaultValue: my-docker-registry
+- name: enabletrigger
+  description: Enables trigger
+  type: boolean
+  defaultValue: true
+- name: registryorganization
+  description: Put docker registry organization name
+  defaultValue: aanaberu
+- name: imagetag
+  description: (Optional)
+  defaultValue: latest
+- name: registryname
+  description: Put docker registry name
+  defaultValue:  containers.cisco.com
+- name: registryrepo
+  description: Put docker registry repo
+  defaultValue: it_gats_cta/spinnaker_spinnaker
+configuration:
+  concurrentExecutions:
+    limitConcurrent: true
+    parallel: false
+  triggers:
+  - account: "{{ dockerregistryaccount }}"
+    enabled: "{{ enabletrigger }}"
+    name: unnamed0
+    organization: "{{ registryorganization }}"
+    registry: "{{ registryname }}"
+    repository: "{{ registryrepo }}"
+    tag: "{{ imagetag }}"
+    type: docker
+id: Deploy-to-Dev
+metadata:
+  description: This template does not have a description
+  name: Deploy-to-Dev
+  owner: anonymous
+  scopes:
+  - global
+protect: true
+schema: "1"
+stages:
+- config:
+    clusters:
+    - account: my-k8s-account
+#      application: helloworld
+      cloudProvider: kubernetes
+      containers:
+      - args: []
+        command: []
+        envFrom: []
+        envVars: []
+        imageDescription:
+          imageId: containers.cisco.com/it_gats_cta/spinnaker_spinnaker:latest
+          registry: containers.cisco.com
+          repository: it_gats_cta/spinnaker_spinnaker
+          tag: latest
+        imagePullPolicy: ALWAYS
+        name: itgatscta-spinnakerspinnaker
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        - containerPort: 9090
+          name: prom
+          protocol: TCP
+        volumeMounts: []
+      dnsPolicy: ClusterFirst
+      events: []
+      initContainers: []
+      interestingHealthProviderNames:
+      - KubernetesContainer
+      - KubernetesPod
+      loadBalancers:
+      - helloworld-dev-frontend
+      namespace:
+      - halyard-rcdn 
+      nodeSelector: {}
+      podAnnotations: {}
+      provider: kubernetes
+      region: halyard-rcdn
+      replicaSetAnnotations: {}
+      securityGroups: []
+      stack: dev
+      strategy: redblack
+      targetSize: 1
+      terminationGracePeriodSeconds: 30
+      volumeSources: []
+  id: Deploy
+  inheritanceControl: {}
+  inject: {}
+  name: Stagging-Deploy
+  type: deploy
